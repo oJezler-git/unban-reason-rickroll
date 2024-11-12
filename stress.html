@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>nothing is gay</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin-top: 50px;
+      }
+      canvas {
+        border: 1px solid black;
+      }
+      button {
+        padding: 10px 20px;
+        font-size: 16px;
+      }
+      .output {
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="startTestButton">Button</button>
+    <canvas id="webglCanvas" width="640" height="480"></canvas>
+    <div class="output">
+      <p id="status">Ready to start the test.</p>
+      <p id="cpuUsage"></p>
+    </div>
+
+    <script src="gpuStressTest.js"></script>
+    <script src="cpuStressTest.js"></script>
+  </body>
+</html>
