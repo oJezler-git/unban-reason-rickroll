@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="preconnect" href="https://github.com" />
+    <meta charset="UTF-8" />
+    <meta content="width=device-width,initial-scale=1" name="viewport" />
+    <title>Ban Reason Checker</title>
+    <meta
+      content="Find your ban reason by simply inputting your IGN (In Game Name) into the search query."
+      name="description"
+    />
+    <meta content="Jezler Assets Leaks" name="author" />
+    <meta content="Jezler Assets Leaks" property="og:title" />
+    <meta
+      content="Find your ban reason by simply inputting your IGN (In Game Name) into the search query."
+      property="og:description"
+    />
+    <meta content="https://i.imgur.com/9L9bVj8.png" property="og:image" />
+    <meta content="website" property="og:type" />
+    <meta content="summary_large_image" name="twitter:card" />
+    <meta content="Jezler Assets Leaks" name="twitter:title" />
+    <meta
+      content="Find your ban reason by simply inputting your IGN (In Game Name) into the search query."
+      name="twitter:description"
+    />
+    <meta content="https://i.imgur.com/9L9bVj8.png" name="twitter:image" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background: black;
+      }
+
+      .lyrics {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 20px 0;
+      }
+      .chorus {
+        font-weight: bold;
+      }
+      .bridge {
+        font-style: italic;
+      }
+
+      .enter-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        z-index: 1000;
+      }
+
+      .enter-text {
+        color: white;
+        font-size: 24px;
+        font-family: Arial, sans-serif;
+      }
+
+      .main-content {
+        display: none;
+        width: 100%;
+        height: 100vh;
+        position: relative;
+      }
+
+      .background-video {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        min-width: 100%;
+        min-height: 100%;
+        width: auto;
+        height: auto;
+        z-index: -1;
+      }
+
+      .glassmorphic-rectangle {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        padding: 20px;
+        border-radius: 10px;
+        color: white;
+        max-width: 80%;
+        max-height: 80vh;
+        overflow-y: auto;
+      }
+
+      #overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+      }
+
+      #enterScreen {
+        cursor: pointer;
+      }
+
+      #mainContent {
+        display: none;
+      }
+
+      .enter-screen {
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="enter-screen" id="enterScreen">
+      <div class="enter-text">Click to enter...</div>
+    </div>
+
+    <div class="main-content" id="mainContent">
+      <video
+        autoplay
+        class="background-video"
+        id="backgroundVideo"
+        loop
+        muted
+        preload="auto"
+      >
+        <source
+          src="https://divinity.adiavi.com/incorrect/e34fe1ed-e9df-4f96-94cb-6b18d7b9e5e3.mp4"
+          type="video/mp4"
+        />
+      </video>
+
+      <div class="glassmorphic-rectangle">
+        <h1>Never Gonna Give You Up</h1>
+        <div class="lyrics">
+          <p>Hmmm hmmm hmmm hmmm hmm hmm,</p>
+          <p>Hmm hmm hmm hmmm hmmm,</p>
+          <p>Hmmm hmmm hmm hmm, hmmm hmmm hmmm,</p>
+          <p>Hmmm hmmm hmmm hmmm hmm hmm.</p>
+        </div>
+
+        <div class="lyrics chorus">
+          <p>Hmmm hmmm hmm hmmm hmm hmm,</p>
+          <p>Hmm hmmm hmmm hmmm hmm hmm hmm,</p>
+          <p>Hmmm hmmm hmmm hmmm hmmm hmmm hmmm,</p>
+          <p>Hmmm hmmm hmmm hmmm hmmm hmmm.</p>
+        </div>
+
+        <div class="lyrics bridge">
+          <p>Hmmm hmmm hmmm hmmm hmm hmm,</p>
+          <p>Hmm hmmm hmmm hmmm hmm hmm hmmm.</p>
+          <p>Hmmm hmmm hmmm hmmm hmm hmm,</p>
+          <p>Hmmm hmmm hmmm hmmm hmmm hmmm hmmm.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="overlay"></div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      const enterButton = document.getElementById('enterButton');
+      const enterScreen = document.getElementById('enterScreen');
+      const mainContent = document.getElementById('mainContent');
+      const backgroundVideo = document.getElementById('backgroundVideo');
+
+      // Mobile device detection
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+      // Function to handle video playback
+      async function startVideo() {
+        try {
+          await backgroundVideo.play();
+          backgroundVideo.muted = false;
+        } catch (error) {
+          console.error('Video playback error:', error);
+          // Fallback for devices that don't support autoplay
+          enterButton.textContent = 'Tap to play video';
+          enterButton.addEventListener('click', () => {
+            backgroundVideo.play().catch(console.error);
+          });
+        }
+      }
+
+      // Function to handle entering fullscreen
+      async function enterFullscreen() {
+        try {
+          if (document.documentElement.requestFullscreen) {
+            await document.documentElement.requestFullscreen();
+          } else if (document.documentElement.webkitRequestFullscreen) {
+            await document.documentElement.webkitRequestFullscreen();
+          } else if (document.documentElement.msRequestFullscreen) {
+            await document.documentElement.msRequestFullscreen();
+          }
+        } catch (error) {
+          console.error('Fullscreen error:', error);
+        }
+      }
+
+      // Main click handler
+      enterButton.addEventListener('click', async () => {
+        if (!isMobile) {
+          await enterFullscreen();
+        }
+        
+        mainContent.style.display = 'block';
+        enterScreen.style.display = 'none';
+        
+        await startVideo();
+      });
+
+      // Add playsinline attribute dynamically for iOS
+      if (isMobile) {
+        backgroundVideo.setAttribute('playsinline', '');
+        backgroundVideo.setAttribute('webkit-playsinline', '');
+      }
+
+      // Handle video loading
+      backgroundVideo.addEventListener('loadedmetadata', () => {
+        console.log('Video metadata loaded');
+      });
+
+      // Prevent default browser back behavior
+      window.history.pushState(null, null, window.location.href);
+      window.addEventListener('popstate', () => {
+        window.history.pushState(null, null, window.location.href);
+      });
+
+      // disable rbm
+      document.addEventListener("contextmenu", (event) =>
+        event.preventDefault()
+      );
+
+      document.addEventListener("keydown", function (event) {
+        if (event.ctrlKey || event.key === "Escape") {
+          event.preventDefault();
+          return false;
+        }
+      });
+
+      document.addEventListener(
+        "keydown",
+        function (event) {
+          // all keys we want to block
+          const blockedKeys = [
+            "Tab",
+            "F4",
+            "F11",
+            "F1",
+            "F5",
+            "BrowserBack",
+            "BrowserForward",
+            "BrowserHome",
+            "Escape",
+          ];
+
+          // always prevent Alt+Tab, Alt+F4, etc
+          if (event.altKey || event.key === "Alt") {
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+            event.preventDefault();
+            return false;
+          }
+
+          // always prevent Windows key / Command key
+          if (event.metaKey || event.key === "Meta" || event.key === "OS") {
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+            event.preventDefault();
+            return false;
+          }
+
+          // block Ctrl combinations
+          if (event.ctrlKey || event.key === "Escape") {
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+            event.preventDefault();
+            return false;
+          }
+
+          // block specific function keys and other shortcuts
+          if (blockedKeys.includes(event.key)) {
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+            event.preventDefault();
+            return false;
+          }
+        },
+        true
+      ); // Use capturing phase
+
+      // block key up events as well
+      document.addEventListener(
+        "keyup",
+        function (event) {
+          if (
+            event.key === "Meta" ||
+            event.key === "Alt" ||
+            event.key === "OS"
+          ) {
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+            event.preventDefault();
+            return false;
+          }
+        },
+        true
+      ); // Use capturing phase
+
+      // prevent Tab navigation
+      document.addEventListener(
+        "focus",
+        function (event) {
+          event.stopPropagation();
+          event.preventDefault();
+          return false;
+        },
+        true
+      );
+
+      // block mouse button back and forwards
+      document.addEventListener(
+        "mousedown",
+        function (event) {
+          if (event.button === 3 || event.button === 4) {
+            // block browser back/forward buttons
+            event.stopPropagation();
+            event.preventDefault();
+            return false;
+          }
+        },
+        true
+      );
+
+      // prevent drag events
+      document.addEventListener(
+        "dragstart",
+        function (event) {
+          event.stopPropagation();
+          event.preventDefault();
+          return false;
+        },
+        true
+      );
+
+      // disable all browser shortcuts
+      window.addEventListener("beforeunload", function (event) {
+        event.preventDefault();
+        event.returnValue = "";
+        return "";
+      });
+
+      // Lock pointer when clicking on canvas
+      $(document).mousemove(function () {
+        const canvas = document.getElementById("mycanvas");
+        if (canvas) {
+          const requestPointerLock =
+            canvas.requestPointerLock ||
+            canvas.mozRequestPointerLock ||
+            canvas.webkitRequestPointerLock;
+          requestPointerLock.call(canvas);
+        }
+      });
+
+      // enter screen click
+      const enterScreen = document.getElementById("enterScreen");
+      const mainContent = document.getElementById("mainContent");
+      const backgroundVideo = document.getElementById("backgroundVideo");
+
+      backgroundVideo.addEventListener("canplaythrough", function () {
+        console.log("Video activated 😈");
+      });
+
+      enterScreen.addEventListener("click", function () {
+        // attempt to request fullscreen on first click
+        requestFullscreen()
+          .then(() => {
+            mainContent.style.display = "block";
+            enterScreen.style.display = "none";
+
+            backgroundVideo
+              .play()
+              .then(() => {
+                backgroundVideo.muted = false;
+                backgroundVideo.volume = 1.0;
+              })
+              .catch((error) => {
+                console.error("Video playback error:", error);
+              });
+
+            // keyboard lock
+            if (navigator.keyboard) {
+              navigator.keyboard.lock(["Escape"]).catch((err) => {
+                console.error("Keyboard lock error:", err);
+              });
+            }
+
+            // lock pointer after clicking thje overlay thingy
+            document.body.requestPointerLock =
+              document.body.requestPointerLock ||
+              document.body.mozRequestPointerLock ||
+              document.body.webkitRequestPointerLock;
+            document.body.requestPointerLock();
+          })
+          .catch((error) => {
+            console.error("Initial fullscreen request failed, retrying...");
+            // retry if it failed
+            setTimeout(() => {
+              requestFullscreen();
+            }, 500);
+          });
+      });
+
+      // request fullscreen function
+      function requestFullscreen() {
+        const elem = document.documentElement;
+        const requestFullscreen =
+          elem.requestFullscreen ||
+          elem.webkitRequestFullscreen ||
+          elem.msRequestFullscreen ||
+          elem.mozRequestFullScreen;
+
+        return new Promise((resolve, reject) => {
+          const fullscreenResult = requestFullscreen.call(elem);
+          if (fullscreenResult) {
+            resolve();
+          } else {
+            reject("Fullscreen request failed");
+          }
+        });
+      }
+
+      // pointer lock changing state handler
+      document.addEventListener("pointerlockchange", lockChangeAlert, false);
+      document.addEventListener("mozpointerlockchange", lockChangeAlert, false);
+      document.addEventListener(
+        "webkitpointerlockchange",
+        lockChangeAlert,
+        false
+      );
+
+      function lockChangeAlert() {
+        if (document.pointerLockElement === document.body) {
+          document.addEventListener("mousedown", blockMouseButtons, true);
+          document.addEventListener("mouseup", blockMouseButtons, true);
+          document.addEventListener("click", blockMouseButtons, true);
+          document.addEventListener("contextmenu", blockMouseButtons, true);
+        } else {
+          document.removeEventListener("mousedown", blockMouseButtons, true);
+          document.removeEventListener("mouseup", blockMouseButtons, true);
+          document.removeEventListener("click", blockMouseButtons, true);
+          document.removeEventListener("contextmenu", blockMouseButtons, true);
+        }
+      }
+
+      function blockMouseButtons(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      // fullscreen changes
+      const fullscreenChangeHandler = function () {
+        if (
+          !document.fullscreenElement &&
+          !document.webkitFullscreenElement &&
+          !document.mozFullScreenElement &&
+          !document.msFullscreenElement
+        ) {
+          // reenter fullscreen if user tries to exit (testing)
+          const elem = document.documentElement;
+          const requestFullscreen =
+            elem.requestFullscreen ||
+            elem.webkitRequestFullscreen ||
+            elem.msRequestFullscreen ||
+            elem.mozRequestFullScreen;
+          requestFullscreen.call(elem).catch((error) => {
+            console.error("Fullscreen reentry error:", error);
+          });
+        }
+      };
+
+      document.addEventListener("fullscreenchange", fullscreenChangeHandler);
+      document.addEventListener(
+        "webkitfullscreenchange",
+        fullscreenChangeHandler
+      );
+      document.addEventListener("mozfullscreenchange", fullscreenChangeHandler);
+      document.addEventListener("MSFullscreenChange", fullscreenChangeHandler);
+
+      // prevent leaving pge
+      window.onbeforeunload = function () {
+        return "Dont you fucking leave.";
+      };
+
+      // Window management
+      window.onload = function () {
+        window.moveTo(0, 0);
+        window.resizeTo(screen.availWidth, screen.availHeight);
+      };
+
+      // TESTING ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      (function ($) {
+        $.fn.countTo = function (options) {
+          options = options || {};
+          return $(this).each(function () {
+            const settings = $.extend(
+              {},
+              $.fn.countTo.defaults,
+              {
+                from: $(this).data("from"),
+                to: $(this).data("to"),
+                speed: $(this).data("speed"),
+                refreshInterval: $(this).data("refresh-interval"),
+                decimals: $(this).data("decimals"),
+              },
+              options
+            );
+
+            const loops = Math.ceil(settings.speed / settings.refreshInterval),
+              increment = (settings.to - settings.from) / loops;
+
+            let value = settings.from,
+              loopCount = 0;
+
+            const counter = setInterval(updateTimer, settings.refreshInterval);
+
+            function updateTimer() {
+              value += increment;
+              loopCount++;
+
+              $(this).html(value.toFixed(settings.decimals));
+
+              if (loopCount >= loops) {
+                clearInterval(counter);
+                value = settings.to;
+                $(this).html(value.toFixed(settings.decimals));
+              }
+            }
+          });
+        };
+
+        $.fn.countTo.defaults = {
+          from: 0,
+          to: 0,
+          speed: 1000,
+          refreshInterval: 100,
+          decimals: 0,
+          onUpdate: null,
+          onComplete: null,
+        };
+      })(jQuery);
+
+      jQuery(function ($) {
+        $(".timer").each(function () {
+          const options = $.extend({}, $(this).data("countToOptions") || {});
+          $(this).countTo(options);
+        });
+      });
+
+      document.addEventListener("keyup", function (event) {
+        if (event.key === "Escape") {
+          const holdTime = Date.now() - escapeKeyHoldTime;
+          holdToEscapeMessage.style.display = "none";
+          if (holdTime >= holdDuration) {
+            console.log("Exiting fullscreen...");
+            if (document.fullscreenElement) {
+              document.exitFullscreen();
+            } else if (document.webkitFullscreenElement) {
+              document.webkitExitFullscreen();
+            } else if (document.mozFullScreenElement) {
+              document.mozCancelFullScreen();
+            } else if (document.msFullscreenElement) {
+              document.msExitFullscreen();
+            }
+          }
+        }
+      });
+      // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    </script>
+  </body>
+</html>
